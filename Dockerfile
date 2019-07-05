@@ -2,6 +2,9 @@ FROM jupyter/datascience-notebook:82b978b3ceeb
 
 USER root
 RUN mkdir /opt/pulsar
+
+SHELL ["/bin/bash", "-c"]
+
 RUN chown -R jovyan /opt/pulsar
 RUN sed -i -e s#jessie\ main#jessie\ main\ non-free#g /etc/apt/sources.list
 RUN apt-get update -y && apt-get install -y \
@@ -64,6 +67,7 @@ RUN wget -q https://bitbucket.org/psrsoft/tempo2/get/master.tar.gz && \
     cp -Rp T2runtime/* /opt/pulsar/share/tempo2/. && \
     cd .. && rm -rf psrsoft-tempo2-* master.tar.gz
 
+
 # get extra ephemeris
 RUN cd /opt/pulsar/share/tempo2/ephemeris && \
     wget -q ftp://ssd.jpl.nasa.gov/pub/eph/planets/bsp/de435t.bsp && \
@@ -74,27 +78,29 @@ RUN cd /opt/pulsar/share/tempo2/ephemeris && \
 # install libstempo (before other Anaconda packages, esp. matplotlib, so there's no libgcc confusion)
 RUN git clone https://github.com/vallis/libstempo.git && \
     cd libstempo && \
-    pip install .  --global-option="build_ext" --global-option="--with-tempo2=/opt/pulsar" && \
+#    pip install .  --global-option="build_ext" --global-option="--with-tempo2=/opt/pulsar" && \
+    pip install .  --global-option=build_ext --global-option="--with-tempo2=/opt/pulsar" && \
     cp -rp demo /home/jovyan/libstempo-demo && chown -R jovyan /home/jovyan/libstempo-demo && \
-    /bin/bash -c "source activate python2 && \
-    pip install .  --global-option=\"build_ext\" --global-option=\"--with-tempo2=/opt/pulsar\"" && \
+    source activate python2 && \
+#    pip install .  --global-option="build_ext" --global-option="--with-tempo2=/opt/pulsar" && \
+    pip install .  --global-option=build_ext --global-option="--with-tempo2=/opt/pulsar" && \
     cd .. && rm -rf libstempo
 
 
 # non-standard-Anaconda packages
-RUN /bin/bash -c "source activate python2 && pip install healpy acor line_profiler"
+RUN source activate python2 && pip install healpy acor line_profiler
 RUN pip install healpy acor line_profiler
 
 # install PTMCMCSampler
 RUN git clone https://github.com/jellis18/PTMCMCSampler && \
     cd PTMCMCSampler && \
-    /bin/bash -c "source activate python2 && pip install . " && \
+    source activate python2 && pip install .  && \
     cd .. && rm -rf PTMCMCSampler
 
 # install PAL2 (do not remove it)
 RUN git clone https://github.com/jellis18/PAL2.git && \
     cd PAL2 && \
-    /bin/bash -c "source activate python2 && pip install . " && \
+    source activate python2 && pip install . && \
     cp -rp demo /home/jovyan/PAL2-demo && chown -R jovyan /home/jovyan/PAL2-demo && \
     cd .. && rm -rf PAL2
 
@@ -134,10 +140,10 @@ ENV PYTHONPATH=$PYTHONPATH:$PSRCHIVE/install/lib/python2.7/site-packages
 RUN git clone git://git.code.sf.net/p/psrchive/code psrchive
 RUN mv psrchive $PSRHOME
 WORKDIR $PSRCHIVE
-RUN /bin/bash -c "source /opt/conda/bin/activate python2; \
+RUN source /opt/conda/bin/activate python2; \
     ./bootstrap; \
-    ./configure F77=gfortran --prefix=$PSRHOME --enable-shared CFLAGS=\"-fPIC -std=gnu11 -DHAVE_CFITSIO\" CXXFLAGS=\"-std=gnu -DHAVE_CFITSIO\" FFLAGS=\"-fPIC\";\
-    make && make install && make clean;" 
+    ./configure F77=gfortran --prefix=$PSRHOME --enable-shared CFLAGS="-fPIC -std=gnu11 -DHAVE_CFITSIO" CXXFLAGS="-std=gnu -DHAVE_CFITSIO" FFLAGS="-fPIC";\
+    make && make install && make clean; 
 RUN cp /opt/pulsar/lib/python2.7/site-packages/* /opt/conda/envs/python2/lib/python2.7/site-packages/
 
 ENV NANOGRAVDATA=/nanograv/data
@@ -150,7 +156,7 @@ RUN ln -sf /home/jovyan/work/custom/lib /home/jovyan/.local/lib
 RUN ln -sf /home/jovyan/work/custom/bin /home/jovyan/.local/bin
 
 COPY requirements.txt /var/tmp/requirements.txt
-RUN /bin/bash -c "source activate python2 && pip install -r /var/tmp/requirements.txt"
+RUN source activate python2 && pip install -r /var/tmp/requirements.txt
 RUN pip install -r /var/tmp/requirements.txt
 
 # tempo 
@@ -175,20 +181,20 @@ WORKDIR /home/jovyan
 RUN git clone https://github.com/vhaasteren/piccard.git && \
     cd piccard && \
     sed -i -e s#liomp5#lgomp#g setup.py && \
-    /bin/bash -c "source /opt/conda/bin/activate python2 && python setup.py install" && \
+    source /opt/conda/bin/activate python2 && python setup.py install && \
     cd /home/jovyan/work && ln -s /home/jovyan/piccard piccard 
 
 RUN git clone https://github.com/nanograv/PINT.git && \
     cd PINT && \
     python setup.py install && \
-    /bin/bash -c "source /opt/conda/bin/activate python2 && python setup.py install"
+    source /opt/conda/bin/activate python2 && python setup.py install
 
 USER root
-RUN bash -c "source activate python2 && git clone https://github.com/kstovall/psrfits_utils.git && \
+RUN source activate python2 && git clone https://github.com/kstovall/psrfits_utils.git && \
     cd psrfits_utils && \
     ./prepare && \
     ./configure && \
-    make && make install"
+    make && make install
 
 RUN cp /opt/pulsar/lib/python2.7/site-packages/* /opt/conda/envs/python2/lib/python2.7/site-packages/
 
@@ -198,18 +204,18 @@ COPY Makefile MultiNest_v3.11/Makefile
 COPY Makefile.polychord /var/tmp/Makefile
 RUN cd MultiNest_v3.11 && make && make libnest3.so && cp libnest3* /usr/lib
 
-RUN bash -c "source activate python2 && git clone https://github.com/LindleyLentati/TempoNest.git && \
-              cd TempoNest && ./autogen.sh && CPPFLAGS=\"-I/opt/pulsar/include\" \
-                LDFLAGS=\"-L/opt/pulsar/lib\" ./configure --prefix=/opt/pulsar && cd PolyChord && \
+RUN source activate python2 && git clone https://github.com/LindleyLentati/TempoNest.git && \
+              cd TempoNest && ./autogen.sh && CPPFLAGS="-I/opt/pulsar/include" \
+                LDFLAGS="-L/opt/pulsar/lib" ./configure --prefix=/opt/pulsar && cd PolyChord && \
                 cp /var/tmp/Makefile Makefile && make \
-                 && make libchord.so && cp src/libchord* /usr/lib && cd ../ && make && make install"
+                 && make libchord.so && cp src/libchord* /usr/lib && cd ../ && make && make install
 
 USER jovyan
 COPY tai2tt_bipm2016.clk /opt/pulsar/share/tempo2/clock/tai2tt_bipm2016.clk
 COPY ao2gps.clk /opt/pulsar/share/tempo2/clock/ao2gps.clk
 COPY gbt2gps.clk /opt/pulsar/share/tempo2/clock/gbt2gps.clk
 USER root
-RUN /bin/bash -c "source /opt/conda/bin/activate python2 && pip install Wand"
+RUN source /opt/conda/bin/activate python2 && pip install Wand
 RUN pip install Wand
 RUN apt-get clean
 RUN systemctl enable ssh
@@ -221,10 +227,10 @@ RUN chmod a+x /usr/local/bin/start-notebook.sh
 RUN chmod a+x /usr/local/bin/start.sh
 RUN git clone https://github.com/demorest/tempo_utils.git && \
     cd tempo_utils && \
-    /bin/bash -c "source /opt/conda/bin/activate python2 && python setup.py install"
+    source /opt/conda/bin/activate python2 && python setup.py install
 RUN  git clone https://github.com/nanograv/enterprise && \
      cd enterprise && \
-     bash -c "source /opt/conda/bin/activate python2 && pip install -r requirements.txt && python setup.py install && cd ../ && rm -rf enterprise"
+     source /opt/conda/bin/activate python2 && pip install -r requirements.txt && python setup.py install && cd ../ && rm -rf enterprise
 USER jovyan
 COPY .bashrc /home/jovyan/.bashrc
 COPY .profile /home/jovyan/.profile
@@ -232,7 +238,7 @@ COPY .vimrc /home/jovyan/.vimrc
 USER root
 ENV PATH=/opt/pulsar/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/pulsar/lib:$LD_LIBRARY_PATH
-RUN bash -c "source activate python2 && git clone git://git.code.sf.net/p/dspsr/code dspsr && cd dspsr && ./bootstrap && ./configure && make && make install"
+RUN source activate python2 && git clone git://git.code.sf.net/p/dspsr/code dspsr && cd dspsr && ./bootstrap && ./configure && make && make install
 RUN chown -R jovyan /home/jovyan
 ENV GRANT_SUDO=1
 WORKDIR /home/jovyan/work
