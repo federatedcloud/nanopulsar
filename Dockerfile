@@ -1,9 +1,9 @@
 FROM jupyter/datascience-notebook:82b978b3ceeb
 
+SHELL ["/bin/bash", "-c"]
+
 USER root
 RUN mkdir /opt/pulsar
-
-SHELL ["/bin/bash", "-c"]
 
 RUN chown -R jovyan /opt/pulsar
 RUN sed -i -e s#jessie\ main#jessie\ main\ non-free#g /etc/apt/sources.list
@@ -207,10 +207,10 @@ COPY Makefile.polychord /var/tmp/Makefile
 RUN cd MultiNest_v3.11 && make && make libnest3.so && cp libnest3* /usr/lib
 
 RUN source activate python2 && git clone https://github.com/LindleyLentati/TempoNest.git && \
-              cd TempoNest && ./autogen.sh && CPPFLAGS="-I/opt/pulsar/include" \
-                LDFLAGS="-L/opt/pulsar/lib" ./configure --prefix=/opt/pulsar && cd PolyChord && \
-                cp /var/tmp/Makefile Makefile && make \
-                 && make libchord.so && cp src/libchord* /usr/lib && cd ../ && make && make install
+    cd TempoNest && ./autogen.sh && CPPFLAGS="-I/opt/pulsar/include" \
+    LDFLAGS="-L/opt/pulsar/lib" ./configure --prefix=/opt/pulsar && cd PolyChord && \
+    cp /var/tmp/Makefile Makefile && make && \
+    make libchord.so && cp src/libchord* /usr/lib && cd ../ && make && make install
 
 USER jovyan
 COPY tai2tt_bipm2016.clk /opt/pulsar/share/tempo2/clock/tai2tt_bipm2016.clk
@@ -230,9 +230,10 @@ RUN chmod a+x /usr/local/bin/start.sh
 RUN git clone https://github.com/demorest/tempo_utils.git && \
     cd tempo_utils && \
     source /opt/conda/bin/activate python2 && python setup.py install
-RUN  git clone https://github.com/nanograv/enterprise && \
-     cd enterprise && \
-     source /opt/conda/bin/activate python2 && pip install -r requirements.txt && python setup.py install && cd ../ && rm -rf enterprise
+RUN git clone https://github.com/nanograv/enterprise && \
+    cd enterprise && \
+    source /opt/conda/bin/activate python2 && pip install -r requirements.txt && \
+    python setup.py install && cd ../ && rm -rf enterprise
 USER jovyan
 COPY .bashrc /home/jovyan/.bashrc
 COPY .profile /home/jovyan/.profile
@@ -240,7 +241,8 @@ COPY .vimrc /home/jovyan/.vimrc
 USER root
 ENV PATH=/opt/pulsar/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/pulsar/lib:$LD_LIBRARY_PATH
-RUN source activate python2 && git clone git://git.code.sf.net/p/dspsr/code dspsr && cd dspsr && ./bootstrap && ./configure && make && make install
+RUN source activate python2 && git clone git://git.code.sf.net/p/dspsr/code dspsr && \
+    cd dspsr && ./bootstrap && ./configure && make && make install
 RUN chown -R jovyan /home/jovyan
 ENV GRANT_SUDO=1
 WORKDIR /home/jovyan/work
