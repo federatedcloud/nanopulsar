@@ -78,11 +78,11 @@ RUN cd /opt/pulsar/share/tempo2/ephemeris && \
 # install libstempo (before other Anaconda packages, esp. matplotlib, so there's no libgcc confusion)
 RUN git clone https://github.com/vallis/libstempo.git && \
     cd libstempo && \
-#    pip install .  --global-option="build_ext" --global-option="--with-tempo2=/opt/pulsar" && \
+    pip install --upgrade pip && \
     pip install .  --global-option=build_ext --global-option="--with-tempo2=/opt/pulsar" && \
     cp -rp demo /home/jovyan/libstempo-demo && chown -R jovyan /home/jovyan/libstempo-demo && \
     source activate python2 && \
-#    pip install .  --global-option="build_ext" --global-option="--with-tempo2=/opt/pulsar" && \
+    pip install --upgrade pip && \
     pip install .  --global-option=build_ext --global-option="--with-tempo2=/opt/pulsar" && \
     cd .. && rm -rf libstempo
 
@@ -142,6 +142,8 @@ RUN mv psrchive $PSRHOME
 WORKDIR $PSRCHIVE
 RUN source /opt/conda/bin/activate python2; \
     ./bootstrap; \
+    ./configure F77=gfortran --prefix=$PSRHOME --enable-shared CFLAGS="-fPIC -std=gnu11 -DHAVE_CFITSIO" CXXFLAGS="-std=gnu -DHAVE_CFITSIO" FFLAGS="-fPIC";\
+    cd packages && make && cd .. && ./packages/epsic.csh; \
     ./configure F77=gfortran --prefix=$PSRHOME --enable-shared CFLAGS="-fPIC -std=gnu11 -DHAVE_CFITSIO" CXXFLAGS="-std=gnu -DHAVE_CFITSIO" FFLAGS="-fPIC";\
     make && make install && make clean; 
 RUN cp /opt/pulsar/lib/python2.7/site-packages/* /opt/conda/envs/python2/lib/python2.7/site-packages/
