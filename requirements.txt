@@ -1,3 +1,4 @@
+fitsio==0.9.11
 requests_oauthlib
 marshmallow
 ephem
@@ -6,10 +7,11 @@ corner
 numexpr 
 astropy
 runipy
+matplotlib==1.5.3
 menpo
 acor 
 line_profiler 
 jplephem
 numdifftools
-numpy==1.12.1
+numpy==1.16.4
 pdat
