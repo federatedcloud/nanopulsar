@@ -230,10 +230,10 @@ RUN chmod a+x /usr/local/bin/start.sh
 RUN git clone https://github.com/demorest/tempo_utils.git && \
     cd tempo_utils && \
     source /opt/conda/bin/activate python2 && python setup.py install
-RUN git clone https://github.com/nanograv/enterprise && \
-    cd enterprise && \
+RUN wget -q https://github.com/nanograv/enterprise/archive/v1.0.0.tar.gz && \
+    tar zxvf v1.0.0.tar.gz && cd enterprise-1.0.0 && \
     source /opt/conda/bin/activate python2 && pip install -r requirements.txt && \
-    python setup.py install && cd ../ && rm -rf enterprise
+    python setup.py install && cd ../ && rm -rf enterprise-1.0.0 && rm v1.0.0.tar.gz
 USER jovyan
 COPY .bashrc /home/jovyan/.bashrc
 COPY .profile /home/jovyan/.profile
