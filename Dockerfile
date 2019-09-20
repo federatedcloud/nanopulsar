@@ -61,7 +61,7 @@ RUN wget -q https://bitbucket.org/psrsoft/tempo2/get/master.tar.gz && \
     tar zxf master.tar.gz && \
     cd psrsoft-tempo2-* && \
     ./bootstrap && \    
-    CPPFLAGS="-I/opt/pulsar/include" LDFLAGS="-L/opt/pulsar/lib" ./configure --prefix=/opt/pulsar --with-calceph=/opt/pulsar/ && \
+    CPPFLAGS="-I/opt/pulsar/include" LDFLAGS="-L/opt/pulsar/lib" ./configure --prefix=/opt/pulsar --with-calceph=/opt/pulsar && \
     make && make install && make plugins && make plugins-install && \
     mkdir -p /opt/pulsar/share/tempo2 && \
     cp -Rp T2runtime/* /opt/pulsar/share/tempo2/. && \
@@ -192,7 +192,7 @@ RUN git clone https://github.com/nanograv/PINT.git && \
     source /opt/conda/bin/activate python2 && python setup.py install
 
 USER root
-RUN source activate python2 && git clone https://github.com/kstovall/psrfits_utils.git && \
+RUN source activate python2 && git clone https://github.com/scottransom/psrfits_utils.git && \
     cd psrfits_utils && \
     ./prepare && \
     ./configure && \
