@@ -122,7 +122,7 @@ ENV PATH=$PATH:$PRESTO/bin
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PRESTO/lib 
 ENV PYTHONPATH=$PYTHONPATH:$PRESTO/lib/python
 
-RUN git clone https://github.com/scottransom/presto.git
+RUN git clone https://github.com/federatedcloud/presto.git
 RUN mv presto $PSRHOME/presto
 
 WORKDIR $PRESTO/src
