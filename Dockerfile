@@ -40,6 +40,8 @@ RUN apt-get update -y && apt-get install -y \
     libgsl-dev \
     libopenmpi-dev \
     libmagickwand-dev \
+    bash-completion \
+    man \
     nano \ 
     vim \ 
     emacs \
