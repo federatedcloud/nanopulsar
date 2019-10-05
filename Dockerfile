@@ -44,6 +44,7 @@ RUN apt-get update -y && apt-get install -y \
     vim \ 
     emacs \
     less \
+    tmux \
     gnuplot
 
 USER jovyan
@@ -188,8 +189,9 @@ RUN git clone https://github.com/vhaasteren/piccard.git && \
 
 RUN git clone https://github.com/nanograv/PINT.git && \
     cd PINT && \
-    python setup.py install && \
-    source /opt/conda/bin/activate python2 && python setup.py install
+    python setup.py install 
+# && \
+#    source /opt/conda/bin/activate python2 && python setup.py install
 
 USER root
 RUN source activate python2 && git clone https://github.com/scottransom/psrfits_utils.git && \
