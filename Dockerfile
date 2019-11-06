@@ -44,6 +44,7 @@ RUN apt-get update -y && apt-get install -y \
     vim \ 
     emacs \
     less \
+    htop \
     tmux \
     gnuplot
 
