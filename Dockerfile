@@ -48,6 +48,7 @@ RUN apt-get update -y && apt-get install -y \
     less \
     htop \
     tmux \
+    screen \
     man \
     bash-completion \
     gnuplot
