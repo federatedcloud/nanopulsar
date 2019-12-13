@@ -128,7 +128,7 @@ ENV PRESTO=$PSRHOME/presto
 ENV PATH=$PATH:$PRESTO/bin 
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PRESTO/lib 
 
-RUN git clone https://github.com/federatedcloud/presto.git
+RUN git clone https://github.com/scottransom/presto.git
 RUN mv presto $PSRHOME/presto
 
 WORKDIR $PRESTO/src
