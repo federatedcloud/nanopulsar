@@ -46,6 +46,10 @@ RUN apt-get update -y && apt-get install -y \
     vim \ 
     emacs \
     less \
+    htop \
+    tmux \
+    man \
+    bash-completion \
     gnuplot
 
 USER jovyan
@@ -110,7 +114,6 @@ RUN git clone https://github.com/jellis18/PAL2.git && \
 RUN git clone https://github.com/stevertaylor/NX01.git && \
     chown -R jovyan /home/jovyan/NX01 
 
-
 ENV PGPLOT_DIR=/usr/lib/pgplot5 
 ENV PGPLOT_FONT=/usr/lib/pgplot5/grfont.dat 
 ENV PGPLOT_INCLUDES=/usr/include 
@@ -119,10 +122,10 @@ ENV PGPLOT_FOREGROUND=black
 ENV PGPLOT_DEV=/xs
 ENV PSRHOME=/opt/pulsar
 
+# install PRESTO
 ENV PRESTO=$PSRHOME/presto 
 ENV PATH=$PATH:$PRESTO/bin 
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PRESTO/lib 
-ENV PYTHONPATH=$PYTHONPATH:$PRESTO/lib/python
 
 RUN git clone https://github.com/federatedcloud/presto.git
 RUN mv presto $PSRHOME/presto
@@ -130,8 +133,10 @@ RUN mv presto $PSRHOME/presto
 WORKDIR $PRESTO/src
 RUN make prep && \
     make
-WORKDIR $PRESTO/python
-RUN /opt/conda/envs/python2/bin/python setup.py install --home=$PRESTO 
+WORKDIR $PRESTO
+RUN pip install .
+#TESTING
+RUN python tests/test_presto_python.py
 
 ENV PSRCHIVE=$PSRHOME/psrchive 
 #ENV PATH=$PATH:$PSRCHIVE/install/bin 
@@ -190,8 +195,9 @@ RUN git clone https://github.com/vhaasteren/piccard.git && \
 
 RUN git clone https://github.com/nanograv/PINT.git && \
     cd PINT && \
-    python setup.py install && \
-    source /opt/conda/bin/activate python2 && python setup.py install
+    python setup.py install 
+# && \
+#    source /opt/conda/bin/activate python2 && python setup.py install
 
 USER root
 RUN source activate python2 && git clone https://github.com/scottransom/psrfits_utils.git && \

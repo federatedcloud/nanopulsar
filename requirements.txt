@@ -17,3 +17,4 @@ jplephem
 numdifftools
 numpy==1.16.4
 pdat
+emcee
